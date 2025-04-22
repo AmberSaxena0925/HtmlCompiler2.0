@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Enhanced HTML/CSS/JS Playground</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body, html {
+     margin: 0;
+     padding: 0;
+     height: 100%;
+     overflow: hidden; /* Add this to remove scrollbars and extra space */
+    }
+
+
+    body.light {
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    body.dark {
+      background-color: #1e1e1e;
+      color: white;
+    }
+
+    .background-wrapper {
+      background-image: url('https://t4.ftcdn.net/jpg/07/51/55/27/240_F_751552787_JikuinFNRxJxdLhmoY3e0rIW03jQGMdS.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      padding: 50px;
+    }
+
+    .top-banner {
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 20px 0;
+      color: white;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .editor-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .editor-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 10px;
+      backdrop-filter: blur(8px);
+      min-width: 250px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #ffffff;
+    }
+
+    textarea {
+      flex: 1;
+      background-color: rgba(0, 0, 0, 0.4);
+      color: #dcdcdc;
+      border: none;
+      border-radius: 5px;
+      padding: 10px;
+      font-family: monospace;
+      resize: vertical;
+      height: 150px;
+    }
+
+    button {
+      padding: 10px 16px;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #005f99;
+    }
+
+    iframe {
+      height: 400vh;
+      width: 100%;
+      border: none;
+      background-color: white;
+    }
+
+    .status {
+      margin-top: 5px;
+      font-size: 14px;
+      opacity: 0.7;
+    }
+
+    .light .overlay label,
+    .light .status {
+      color: #d5d2d2;
+    }
+
+    .theme-toggle,
+    .live-toggle {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: white;
+    }
+
+    .light .theme-toggle,
+    .light .live-toggle {
+      color: #fde404e3;
+    }
+
+    .download-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body class="dark">
+  
+  <div class="background-wrapper">
+    <div class="overlay">
+      <div class="top-banner">HTML / CSS / JS Playground</div>
+
+      <div class="controls">
+        <div class="theme-toggle">
+          <label for="themeSwitch">Theme:</label>
+          <button onclick="toggleTheme()">Switch Theme</button>
+        </div>
+
+        <div class="live-toggle">
+          <label for="liveSwitch">Live Preview:</label>
+          <input type="checkbox" id="liveSwitch" checked />
+        </div>
+
+        <div class="download-buttons">
+          <button onclick="downloadCode('html')">⬇️ HTML</button>
+          <button onclick="downloadCode('css')">⬇️ CSS</button>
+          <button onclick="downloadCode('js')">⬇️ JS</button>
+        </div>
+      </div>
+
+      <div class="editor-container">
+        <div class="editor-column">
+          <label for="html">HTML</label>
+          <textarea id="html" placeholder="Write HTML here..."></textarea>
+        </div>
+        <div class="editor-column">
+          <label for="css">CSS</label>
+          <textarea id="css" placeholder="Write CSS here..."></textarea>
+        </div>
+        <div class="editor-column">
+          <label for="js">JavaScript</label>
+          <textarea id="js" placeholder="Write JavaScript here..."></textarea>
+        </div>
+      </div>
+
+      <button onclick="runCode()">▶️ Run</button>
+      <div class="status" id="statusText">Preview updated.</div>
+    </div>
+  </div>
+
+  <iframe id="output"></iframe>
+
+  <script>
+    const htmlEl = document.getElementById('html');
+    const cssEl = document.getElementById('css');
+    const jsEl = document.getElementById('js');
+    const output = document.getElementById('output');
+    const statusText = document.getElementById('statusText');
+    const liveSwitch = document.getElementById('liveSwitch');
+
+    function runCode() {
+      const html = htmlEl.value;
+      const css = `<style>${cssEl.value}</style>`;
+      const js = `<script>${jsEl.value}<\/script>`;
+      const themeBg = document.body.classList.contains("dark")
+        ? "<style>body{background:#121212; color:white;}</style>"
+        : "<style>body{background:white; color:black;}</style>";
+      output.srcdoc = `${themeBg}${html}${css}${js}`;
+      statusText.textContent = "Preview updated.";
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+      document.body.classList.toggle("light");
+      runCode();
+    }
+
+    function downloadCode(type) {
+      let data = '';
+      let filename = '';
+      if (type === 'html') {
+        data = htmlEl.value;
+        filename = 'index.html';
+      } else if (type === 'css') {
+        data = cssEl.value;
+        filename = 'style.css';
+      } else {
+        data = jsEl.value;
+        filename = 'script.js';
+      }
+      const blob = new Blob([data], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    [htmlEl, cssEl, jsEl].forEach(el => {
+      el.addEventListener('input', () => {
+        if (liveSwitch.checked) {
+          runCode();
+        } else {
+          statusText.textContent = "Live preview off. Click Run to update.";
+        }
+      });
+    });
+
+    window.onload = () => {
+      htmlEl.focus();
+      runCode();
+    };
+  </script>
+
+</body>
+</html>
